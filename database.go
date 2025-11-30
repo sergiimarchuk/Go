@@ -14,7 +14,7 @@ func InitDB() error {
         return err
     }
 
-    // Создаём таблицы
+    // 
     _, err = db.Exec(`
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,

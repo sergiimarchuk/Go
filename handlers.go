@@ -9,14 +9,14 @@ import (
     "fmt"
 )
 
-// Главная страница
+// main page 
 func HomePage(c *gin.Context) {
     c.HTML(http.StatusOK, "index.html", gin.H{
         "title": "Трекер рабочего времени",
     })
 }
 
-// Страница логина
+// page login
 func LoginPage(c *gin.Context) {
     timeout := c.Query("timeout")
     
@@ -24,7 +24,7 @@ func LoginPage(c *gin.Context) {
         "timeout": timeout == "1",
     })
 }
-// Обработка логина
+// username 
 func LoginHandler(c *gin.Context) {
     username := c.PostForm("username")
     password := c.PostForm("password")
@@ -32,19 +32,19 @@ func LoginHandler(c *gin.Context) {
     user, err := GetUserByUsername(username)
     if err != nil {
         c.HTML(http.StatusOK, "login.html", gin.H{
-            "error": "Неверный логин или пароль",
+            "error": "WTF your creds are wrong",
         })
         return
     }
     
     if !CheckPassword(password, user.Password) {
         c.HTML(http.StatusOK, "login.html", gin.H{
-            "error": "Неверный логин или пароль",
+            "error": "shitty you are doing creds",
         })
         return
     }
     
-    // Сохраняем в сессию
+    // save sessions
     session := sessions.Default(c)
     session.Set("user_id", user.ID)
     session.Set("username", user.Username)
@@ -53,7 +53,7 @@ func LoginHandler(c *gin.Context) {
     c.Redirect(http.StatusFound, "/dashboard")
 }
 
-// Дашборд (главная после логина)
+// dashboard (next page after login page)
 func DashboardPage(c *gin.Context) {
     username := GetCurrentUsername(c)
     
@@ -62,12 +62,12 @@ func DashboardPage(c *gin.Context) {
     })
 }
 
-// Форма новой записи
+// new entry form 
 func NewWorkLogPage(c *gin.Context) {
     c.HTML(http.StatusOK, "new_worklog.html", gin.H{})
 }
 
-// Сохранение новой записи
+// save new entry
 func CreateWorkLogHandler(c *gin.Context) {
     date := c.PostForm("date")
     description := c.PostForm("description")
@@ -82,27 +82,27 @@ func CreateWorkLogHandler(c *gin.Context) {
     
     if err != nil {
         c.HTML(http.StatusOK, "new_worklog.html", gin.H{
-            "error": "Ошибка сохранения: " + err.Error(),
+            "error": "error to save entry: " + err.Error(),
         })
         return
     }
     
     c.HTML(http.StatusOK, "new_worklog.html", gin.H{
-        "success": "✅ Запись сохранена!",
+        "success": "✅ Save new entry!",
     })
 }
 
-// Список всех записей
-// Список всех записей с фильтрами
+// List all entris 
+// list after filtered
 func WorkLogListPage(c *gin.Context) {
     userID := GetCurrentUserID(c)
     
-    // Получаем параметры фильтров
+    // values filters
     dateFrom := c.Query("date_from")
     dateTo := c.Query("date_to")
     search := c.Query("search")
     
-    // Строим SQL запрос с фильтрами
+    //  SQL build filters 
     query := `SELECT id, date, description, hours FROM worklogs WHERE user_id = ?`
     args := []interface{}{userID}
     
@@ -127,7 +127,7 @@ func WorkLogListPage(c *gin.Context) {
     
     if err != nil {
         c.HTML(http.StatusOK, "worklog_list.html", gin.H{
-            "error": "Ошибка загрузки данных",
+            "error": "errors loads ...",
         })
         return
     }
@@ -153,8 +153,8 @@ func WorkLogListPage(c *gin.Context) {
 
 
 
-// Страница отчётов
-// Страница отчётов с расширенной аналитикой
+// reports
+// reports analytics 
 func ReportsPage(c *gin.Context) {
     userID := GetCurrentUserID(c)
     
@@ -167,7 +167,7 @@ func ReportsPage(c *gin.Context) {
     
     if err != nil {
         c.HTML(http.StatusOK, "reports.html", gin.H{
-            "error": "Ошибка загрузки данных",
+            "error": "errors loads data",
         })
         return
     }
@@ -177,10 +177,10 @@ func ReportsPage(c *gin.Context) {
     var hours []float64
     var totalHours float64
     
-    // Для группировки по месяцам
+    // for goupe monthe 
     monthsMap := make(map[string]float64)
-    // Для группировки по неделям
-    weeksMap := make(map[string]float64)
+    // for grpoup weeks  
+    weeksMap := make(map[string]fl at64)
     
     for rows.Next() {
         var date string
@@ -189,22 +189,22 @@ func ReportsPage(c *gin.Context) {
         
         t, _ := time.Parse("2006-01-02", date)
         
-        // Данные по дням
-        dates = append(dates, t.Format("02.01"))
+        // group dates
+	dates = append(dates, t.Format("02.01"))
         hours = append(hours, hour)
         totalHours += hour
         
-        // Группировка по месяцам
+        // group month
         monthKey := t.Format("2006-01")
         monthsMap[monthKey] += hour
         
-        // Группировка по неделям (ISO week)
+        // group (ISO week)
         year, week := t.ISOWeek()
         weekKey := fmt.Sprintf("%d-W%02d", year, week)
         weeksMap[weekKey] += hour
     }
     
-    // Преобразуем месяцы в массивы
+    // 
     var months []string
     var monthHours []float64
     for month, hours := range monthsMap {
@@ -213,7 +213,7 @@ func ReportsPage(c *gin.Context) {
         monthHours = append(monthHours, hours)
     }
     
-    // Преобразуем недели в массивы
+    // 
     var weeks []string
     var weekHours []float64
     for week, hours := range weeksMap {
@@ -221,7 +221,7 @@ func ReportsPage(c *gin.Context) {
         weekHours = append(weekHours, hours)
     }
     
-    // Считаем среднее
+    // 
     avgHours := 0.0
     if len(hours) > 0 {
         avgHours = totalHours / float64(len(hours))
@@ -240,7 +240,7 @@ func ReportsPage(c *gin.Context) {
     })
 }
 
-// Страница редактирования записи
+// 
 func EditWorkLogPage(c *gin.Context) {
     id := c.Param("id")
     
@@ -261,7 +261,7 @@ func EditWorkLogPage(c *gin.Context) {
     })
 }
 
-// Обновление записи
+//
 func UpdateWorkLogHandler(c *gin.Context) {
     id := c.Param("id")
     date := c.PostForm("date")
@@ -283,7 +283,7 @@ func UpdateWorkLogHandler(c *gin.Context) {
     c.Redirect(http.StatusFound, "/worklog/list")
 }
 
-// Удаление записи
+// 
 func DeleteWorkLogHandler(c *gin.Context) {
     id := c.Param("id")
     
@@ -296,7 +296,7 @@ func DeleteWorkLogHandler(c *gin.Context) {
     c.Redirect(http.StatusFound, "/worklog/list")
 }
 
-// Выход из системы
+// 
 func LogoutHandler(c *gin.Context) {
     session := sessions.Default(c)
     session.Clear()
@@ -305,17 +305,17 @@ func LogoutHandler(c *gin.Context) {
     c.Redirect(http.StatusFound, "/login")
 }
 
-// Экспорт в Excel
+//  Excel
 func ExportWorkLogHandler(c *gin.Context) {
     userID := GetCurrentUserID(c)
     username := GetCurrentUsername(c)
 
-    // Получаем параметры фильтров
+    // 
     dateFrom := c.Query("date_from")
     dateTo := c.Query("date_to")
     search := c.Query("search")
 
-    // Строим SQL запрос с фильтрами
+    // SQL
     query := `SELECT date, description, hours FROM worklogs WHERE user_id = ?`
     args := []interface{}{userID}
 
@@ -343,17 +343,17 @@ func ExportWorkLogHandler(c *gin.Context) {
     }
     defer rows.Close()
 
-    // Создаём Excel файл
+    // Excel 
     f := excelize.NewFile()
     sheetName := "Рабочие часы"
     index, _ := f.NewSheet(sheetName)
 
-    // Заголовки
+    // 
     f.SetCellValue(sheetName, "A1", "Дата")
     f.SetCellValue(sheetName, "B1", "Описание")
     f.SetCellValue(sheetName, "C1", "Часы")
 
-    // Стиль для заголовков
+    //
     headerStyle, _ := f.NewStyle(&excelize.Style{
         Font: &excelize.Font{Bold: true, Size: 12},
         Fill: excelize.Fill{Type: "pattern", Color: []string{"#667eea"}, Pattern: 1},
@@ -361,7 +361,7 @@ func ExportWorkLogHandler(c *gin.Context) {
     })
     f.SetCellStyle(sheetName, "A1", "C1", headerStyle)
 
-    // Заполняем данные
+    // 
     row := 2
     totalHours := 0.0
 
@@ -380,7 +380,7 @@ func ExportWorkLogHandler(c *gin.Context) {
         row++
     }
 
-    // Добавляем итоги
+    // 
     row++
     f.SetCellValue(sheetName, "B"+fmt.Sprintf("%d", row), "ИТОГО:")
     f.SetCellValue(sheetName, "C"+fmt.Sprintf("%d", row), totalHours)
@@ -391,7 +391,7 @@ func ExportWorkLogHandler(c *gin.Context) {
     })
     f.SetCellStyle(sheetName, "B"+fmt.Sprintf("%d", row), "C"+fmt.Sprintf("%d", row), totalStyle)
 
-    // Устанавливаем ширину колонок
+    //
     f.SetColWidth(sheetName, "A", "A", 15)
     f.SetColWidth(sheetName, "B", "B", 50)
     f.SetColWidth(sheetName, "C", "C", 10)
@@ -399,7 +399,7 @@ func ExportWorkLogHandler(c *gin.Context) {
     f.SetActiveSheet(index)
     f.DeleteSheet("Sheet1")
 
-    // Отправляем файл
+    // 
     fileName := fmt.Sprintf("worklog_%s_%s.xlsx", username, time.Now().Format("2006-01-02"))
 
     c.Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
@@ -410,18 +410,18 @@ func ExportWorkLogHandler(c *gin.Context) {
     }
 }
 
-// Страница регистрации
+// 
 func RegisterPage(c *gin.Context) {
     c.HTML(http.StatusOK, "register.html", gin.H{})
 }
 
-// Обработка регистрации
+// 
 func RegisterHandler(c *gin.Context) {
     username := c.PostForm("username")
     password := c.PostForm("password")
     passwordConfirm := c.PostForm("password_confirm")
 
-    // Валидация
+    // 
     if username == "" || password == "" {
         c.HTML(http.StatusOK, "register.html", gin.H{
             "error": "Заполните все поля",
@@ -431,26 +431,26 @@ func RegisterHandler(c *gin.Context) {
 
     if len(username) < 3 {
         c.HTML(http.StatusOK, "register.html", gin.H{
-            "error": "Логин должен быть не менее 3 символов",
+            "error": "more then 3 symbols",
         })
         return
     }
 
     if len(password) < 6 {
         c.HTML(http.StatusOK, "register.html", gin.H{
-            "error": "Пароль должен быть не менее 6 символов",
+            "error": "more than 6 symbols",
         })
         return
     }
 
     if password != passwordConfirm {
         c.HTML(http.StatusOK, "register.html", gin.H{
-            "error": "Пароли не совпадают",
+            "error": "passwords are not equals",
         })
         return
     }
 
-    // Проверяем существует ли пользователь
+    // 
     existingUser, _ := GetUserByUsername(username)
     if existingUser != nil {
         c.HTML(http.StatusOK, "register.html", gin.H{
@@ -459,16 +459,16 @@ func RegisterHandler(c *gin.Context) {
         return
     }
 
-    // Создаём пользователя
+    // 
     err := CreateUser(username, password)
     if err != nil {
         c.HTML(http.StatusOK, "register.html", gin.H{
-            "error": "Ошибка создания пользователя: " + err.Error(),
+            "error": "error: " + err.Error(),
         })
         return
     }
 
-    // Автоматически логиним
+    // 
     user, _ := GetUserByUsername(username)
     session := sessions.Default(c)
     session.Set("user_id", user.ID)

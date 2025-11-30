@@ -16,7 +16,7 @@ type Claims struct {
     jwt.RegisteredClaims
 }
 
-// Генерация JWT токена
+// 
 func GenerateJWT(userID int, username string) (string, error) {
     claims := Claims{
         UserID:   userID,
@@ -31,7 +31,7 @@ func GenerateJWT(userID int, username string) (string, error) {
     return token.SignedString(jwtSecret)
 }
 
-// Проверка JWT токена
+// Проверка JWT 
 func ValidateJWT(tokenString string) (*Claims, error) {
     token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
         return jwtSecret, nil
@@ -48,7 +48,7 @@ func ValidateJWT(tokenString string) (*Claims, error) {
     return nil, err
 }
 
-// Middleware для проверки JWT
+// Middleware  JWT
 func JWTAuthMiddleware() gin.HandlerFunc {
     return func(c *gin.Context) {
         authHeader := c.GetHeader("Authorization")
@@ -78,7 +78,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
     }
 }
 
-// API: Логин
+// API: 
 func APILogin(c *gin.Context) {
     var req struct {
         Username string `json:"username" binding:"required"`
@@ -111,7 +111,7 @@ func APILogin(c *gin.Context) {
     })
 }
 
-// API: Регистрация
+// API:
 func APIRegister(c *gin.Context) {
     var req struct {
         Username string `json:"username" binding:"required,min=3"`
@@ -147,7 +147,7 @@ func APIRegister(c *gin.Context) {
     })
 }
 
-// API: Получить все записи
+// API: 
 func APIGetWorkLogs(c *gin.Context) {
     userID := c.GetInt("user_id")
     
@@ -198,7 +198,7 @@ func APIGetWorkLogs(c *gin.Context) {
     c.JSON(http.StatusOK, gin.H{"data": logs})
 }
 
-// API: Создать запись
+// API:
 func APICreateWorkLog(c *gin.Context) {
     userID := c.GetInt("user_id")
     
@@ -231,7 +231,7 @@ func APICreateWorkLog(c *gin.Context) {
     })
 }
 
-// API: Обновить запись
+// API: 
 func APIUpdateWorkLog(c *gin.Context) {
     userID := c.GetInt("user_id")
     id := c.Param("id")
@@ -266,7 +266,7 @@ func APIUpdateWorkLog(c *gin.Context) {
     c.JSON(http.StatusOK, gin.H{"message": "Worklog updated"})
 }
 
-// API: Удалить запись
+// API:
 func APIDeleteWorkLog(c *gin.Context) {
     userID := c.GetInt("user_id")
     id := c.Param("id")
@@ -287,7 +287,7 @@ func APIDeleteWorkLog(c *gin.Context) {
     c.JSON(http.StatusOK, gin.H{"message": "Worklog deleted"})
 }
 
-// API: Получить статистику
+// API: 
 func APIGetStats(c *gin.Context) {
     userID := c.GetInt("user_id")
     

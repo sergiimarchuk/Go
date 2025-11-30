@@ -7,19 +7,19 @@ import (
     "net/http"
 )
 
-// Хешируем пароль
+// easy to understand hash password 
 func HashPassword(password string) (string, error) {
     bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
     return string(bytes), err
 }
 
-// Проверяем пароль
+// check password 
 func CheckPassword(password, hash string) bool {
     err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
     return err == nil
 }
 
-// Создаём пользователя
+// creation user
 func CreateUser(username, password string) error {
     hash, err := HashPassword(password)
     if err != nil {
@@ -30,7 +30,7 @@ func CreateUser(username, password string) error {
     return err
 }
 
-// Получаем пользователя по username
+// get user according to  username
 func GetUserByUsername(username string) (*User, error) {
     user := &User{}
     err := db.QueryRow("SELECT id, username, password FROM users WHERE username = ?", username).
@@ -42,7 +42,7 @@ func GetUserByUsername(username string) (*User, error) {
     return user, nil
 }
 
-// Middleware для проверки авторизации
+// Middleware check auth cred 
 func AuthRequired() gin.HandlerFunc {
     return func(c *gin.Context) {
         session := sessions.Default(c)
@@ -58,7 +58,7 @@ func AuthRequired() gin.HandlerFunc {
     }
 }
 
-// Получить ID текущего пользователя из сессии
+// get ID curent session from 
 func GetCurrentUserID(c *gin.Context) int {
     session := sessions.Default(c)
     userID := session.Get("user_id")
@@ -70,7 +70,7 @@ func GetCurrentUserID(c *gin.Context) int {
     return userID.(int)
 }
 
-// Получить имя текущего пользователя
+// get current username  
 func GetCurrentUsername(c *gin.Context) string {
     session := sessions.Default(c)
     username := session.Get("username")
