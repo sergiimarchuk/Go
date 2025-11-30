@@ -1,6 +1,6 @@
 # 📚 
 
-## 1. [Архитектура проекта](#архитектура)
+## 1.
 2. [structure files](#structure)
 3. [descript. Go files](#go-files)
 4. [decr. templ.](#templates)
