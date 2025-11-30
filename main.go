@@ -10,45 +10,45 @@ import (
 )
 
 func main() {
-    // Инициализируем БД
+    // initio. db 
     if err := InitDB(); err != nil {
-        log.Fatal("Ошибка БД:", err)
+        log.Fatal("fehler db:", err)
     }
 
     r := gin.Default()
     
-    // Настраиваем сессии
+    // conf or put settings for sessions 
     store := cookie.NewStore([]byte("super-secret-key-change-me-in-production"))
     store.Options(sessions.Options{
         Path:     "/",
-        MaxAge:   0, // Session cookie - умрёт при закрытии браузера
+        MaxAge:   0, // Session cookie - out session after browser closed
         HttpOnly: true,
         Secure:   false,
         SameSite: http.SameSiteLaxMode,
     })
     r.Use(sessions.Sessions("mysession", store))
     
-    // Добавляем функцию сложения для шаблонов
+    // added func for tamplates 
     r.SetFuncMap(template.FuncMap{
         "add": func(a, b float64) float64 {
             return a + b
         },
     })
     
-    // Загружаем HTML шаблоны
+    // load HTML temlates
     r.LoadHTMLGlob("templates/*")
     r.Static("/static", "./static")
 
     // ========== WEB ROUTES ==========
     
-    // Публичные роуты
+    // public routes
     r.GET("/", HomePage)
     r.GET("/login", LoginPage)
     r.POST("/login", LoginHandler)
     r.GET("/register", RegisterPage)
     r.POST("/register", RegisterHandler)
     
-    // Защищённые роуты (требуют авторизации)
+    // secured routes only after creds done successful 
     authorized := r.Group("/")
     authorized.Use(AuthRequired())
     authorized.Use(CheckInactivity())
@@ -69,11 +69,11 @@ func main() {
     
     api := r.Group("/api/v1")
     {
-        // Публичные API endpoints
+        // public API endpoints
         api.POST("/auth/login", APILogin)
         api.POST("/auth/register", APIRegister)
         
-        // Защищённые API endpoints (требуют JWT токен)
+        // isecured API endpoints (needs JWT token)
         apiAuth := api.Group("/")
         apiAuth.Use(JWTAuthMiddleware())
         {
@@ -88,7 +88,7 @@ func main() {
         }
     }
  
-    log.Println("🚀 Сервер запущен на http://localhost:8080")
-    log.Println("📡 API доступно на http://localhost:8080/api/v1")
+    log.Println("🚀 up see there http://localhost:8080")
+    log.Println("📡 API has to be available there http://localhost:8080/api/v1")
     r.Run(":8080")
 }
