@@ -10,15 +10,15 @@
 
 ---
 
-## arcgitect proj.
+## arc. proj.
 
-**Pattern:** MVC (Model-View-Controller)
+**pattern:** MVC (Model-View-Controller)
 **framework:** Gin (Go)
 **db:** SQLite
 
 **parts:**
 - Model: `models.go`, `database.go`
-- View: HTML шаблоны `templates/`
+- View: HTML `templates/`
 - Controller: `handlers.go`, `api.go`
 - Auth: `auth.go`, `middleware.go`
 
@@ -274,7 +274,7 @@ All HTML (without base.html).
 - `login.html` - форма 
 - `register.html` - форма 
 
-**Защищённые:**
+**secured:**
 - `dashboard.html` - 
 - `new_worklog.html` -
 - `edit_worklog.html` - 
@@ -378,7 +378,7 @@ Response:
 2. **HttpOnly cookies** - XSS 
 3. **SameSite: Lax** - CSRF 
 4. **Session cookie** - 
-5. **Автологаут** - 30 
+5. **autologaout** - 30 
 6. **JWT** - 24 
 7. **Prepared statements** - SQL 
 8. **Validation** -  + 
@@ -392,5 +392,3 @@ Response:
 
 ---
 
-**Версия:** 1.0
-**Дата:** 2025-11-26

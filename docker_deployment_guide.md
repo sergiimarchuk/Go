@@ -257,7 +257,7 @@ server {
 ### 1.6  database.go (!!!)
 
 ```go
-// Файл: database.go
+// : database.go
 
 package main
 
@@ -434,7 +434,7 @@ docker-compose logs -f nginx
 
 ---
 
-## Шаг 5:  
+## 5:  
 
 ### 5.1  
 
@@ -455,8 +455,8 @@ curl http://localhost/health
 
 ### 5.3  
 
-**Вариант 1:**  
-- Открой http://192.168.100.60/register
+** 1:**  
+-  http://192.168.100.60/register
 
 ---
 
