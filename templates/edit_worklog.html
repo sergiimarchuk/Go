@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактирование записи</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        .header {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header a {
+            color: white;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+        .btn-logout {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .form-box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+        }
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .error {
+            background: #ff4444;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <a href="/worklog/list">← Назад к списку</a>
+            <span>Редактирование записи</span>
+            <a href="/logout" class="btn-logout">🚪 Выйти</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="form-box">
+            <h2>✏️ Редактировать запись</h2>
+            
+            {{if .error}}
+            <div class="error">{{.error}}</div>
+            {{end}}
+            
+            <form method="POST" action="/worklog/update/{{.log.ID}}">
+                <div class="form-group">
+                    <label>Дата:</label>
+                    <input type="date" name="date" value="{{.log.Date.Format "2006-01-02"}}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Описание работы:</label>
+                    <textarea name="description" required>{{.log.Description}}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Часов отработано:</label>
+                    <input type="number" name="hours" step="0.5" min="0" max="24" value="{{.log.Hours}}" required>
+                </div>
+                
+                <button type="submit">💾 Сохранить изменения</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
