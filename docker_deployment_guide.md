@@ -207,7 +207,7 @@ http {
 ### 1.5  nginx-site.conf
 
 ```nginx
-# Файл: nginx-site.conf
+# : nginx-site.conf
 
 upstream worklog_backend {
     server worklog-tracker:8080;
