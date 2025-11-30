@@ -44,12 +44,12 @@
 
 ---
 
-## Шаг 1: Подготовка на локальной машине
+## Шаг 1: 
 
-### 1.1 Создаём Dockerfile
+### 1.1  Dockerfile
 
 ```dockerfile
-# Файл: Dockerfile
+# : Dockerfile
 
 # Multi-stage build
 FROM golang:1.24-alpine AS builder
@@ -88,10 +88,10 @@ EXPOSE 8080
 CMD ["./worklog-tracker"]
 ```
 
-### 1.2 Создаём docker-compose.yml
+### 1.2  docker-compose.yml
 
 ```yaml
-# Файл: docker-compose.yml
+# docker-compose.yml
 
 version: '3.8'
 
@@ -141,10 +141,10 @@ networks:
     driver: bridge
 ```
 
-### 1.3 Создаём .dockerignore
+### 1.3  .dockerignore
 
 ```
-# Файл: .dockerignore
+# .dockerignore
 
 *.db
 *.db-journal
@@ -162,10 +162,10 @@ Dockerfile
 nginx*.conf
 ```
 
-### 1.4 Создаём nginx.conf
+### 1.4  nginx.conf
 
 ```nginx
-# Файл: nginx.conf
+# nginx.conf
 
 user nginx;
 worker_processes auto;
@@ -204,7 +204,7 @@ http {
 }
 ```
 
-### 1.5 Создаём nginx-site.conf
+### 1.5  nginx-site.conf
 
 ```nginx
 # Файл: nginx-site.conf
@@ -254,7 +254,7 @@ server {
 }
 ```
 
-### 1.6 Обновляем database.go (важно!)
+### 1.6  database.go (!!!)
 
 ```go
 // Файл: database.go
@@ -272,7 +272,7 @@ var db *sql.DB
 func InitDB() error {
     var err error
     
-    // Путь к базе из переменной окружения
+    // oath to db in environment 
     dbPath := os.Getenv("DATABASE_PATH")
     if dbPath == "" {
         dbPath = "./database.db"
@@ -283,7 +283,7 @@ func InitDB() error {
         return err
     }
 
-    // Создаём таблицы
+    // tables
     _, err = db.Exec(`
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -312,66 +312,67 @@ func InitDB() error {
 
 ---
 
-## Шаг 2: Перенос на сервер
+## Шаг 2: move to openSuse into docker  
 
-### 2.1 На локальной машине (Ubuntu)
+### 2.1 this is on local machine (Ubuntu)
 
 ```bash
 cd /opt/dev-py/tempo_Go
 
-# Копируем весь проект на сервер
+# to srv
 rsync -av my-tracker/ root@192.168.100.60:/opt/dev-py/tempo_Go/my-tracker/
 
-# Копируем базу данных (если нужны существующие пользователи)
+# if needs copy db
 scp my-tracker/database.db root@192.168.100.60:/opt/dev-py/tempo_Go/my-tracker/data/database.db
 ```
 
 ---
 
-## Шаг 3: Установка Docker на openSUSE
+## Шаг 3:  Docker на openSUSE
 
-### 3.1 Подключаемся к серверу
+### 3.1
 
 ```bash
 ssh root@192.168.100.60
 ```
 
-### 3.2 Устанавливаем Docker
+### 3.2  Docker
 
 ```bash
-# Установка Docker и Docker Compose
+#  Docker Docker Compose
 sudo zypper install docker docker-compose
 
-# Добавляем пользователя в группу docker (опционально)
+# docker (optional)
 sudo usermod -aG docker $USER
 
-# Включаем и запускаем Docker
+#  Docker
 sudo systemctl enable docker
 sudo systemctl start docker
 
-# Проверяем
+# 
 docker --version
 docker-compose --version
 ```
 
 ---
 
-## Шаг 4: Запуск на сервере
+## 
 
-### 4.1 Переходим в папку проекта
+4: 
+
+### 4.1 
 
 ```bash
 cd /opt/dev-py/tempo_Go/my-tracker
 ```
 
-### 4.2 Создаём папки для данных
-
+### 4.2 
 ```bash
 mkdir -p data
 chmod 777 data
 ```
 
-### 4.3 Останавливаем старые контейнеры (если были)
+### 4.3 
 
 ```bash
 docker-compose down
@@ -381,140 +382,133 @@ docker stop worklog-nginx 2>/dev/null || true
 docker rm worklog-nginx 2>/dev/null || true
 ```
 
-### 4.4 Собираем образы
+### 4.4 Creation images !!!! 
 
 ```bash
 docker-compose build --no-cache
 ```
 
-Это займёт 5-10 минут. Должно быть:
+
 ```
 Successfully built xxx
 Successfully tagged my-tracker-worklog-tracker:latest
 ```
 
-### 4.5 Запускаем контейнеры
+### 4.5 
 
 ```bash
 docker-compose up -d
 ```
 
-### 4.6 Проверяем что запустились
+### 4.6 
 
 ```bash
 docker-compose ps
 ```
 
-Должно быть:
+ :
 ```
 NAME                  STATUS    PORTS
 worklog-tracker       Up        127.0.0.1:8080->8080/tcp
 worklog-nginx         Up        0.0.0.0:80->80/tcp
 ```
 
-### 4.7 Смотрим логи
+### 4.7  
 
 ```bash
-# Все контейнеры
+#  
 docker-compose logs -f
 
-# Только приложение
+#  
 docker-compose logs -f worklog-tracker
 
-# Только Nginx
+#   Nginx
 docker-compose logs -f nginx
 ```
 
-Должно быть:
+ :
 ```
-🚀 Сервер запущен на http://localhost:8080
-📡 API доступно на http://localhost:8080/api/v1
+🚀  http://localhost:8080
+📡 API http://localhost:8080/api/v1
 ```
 
 ---
 
-## Шаг 5: Проверка работы
+## Шаг 5:  
 
-### 5.1 На сервере
+### 5.1  
 
 ```bash
-# Проверяем что отвечает
+#  
 curl http://localhost
 curl http://192.168.100.60
 
-# Проверяем health check
+#   health check
 curl http://localhost/health
 ```
 
-### 5.2 С локальной машины
+### 5.2  
 
-Открой браузер: **http://192.168.100.60**
+ : **http://192.168.100.60**
 
-Должна открыться главная страница с кнопкой "Войти"
+ 
 
-### 5.3 Создание первого пользователя
+### 5.3  
 
-**Вариант 1:** Регистрация через веб
+**Вариант 1:**  
 - Открой http://192.168.100.60/register
-- Создай пользователя
-
-**Вариант 2:** Скопировать базу с локальной машины (уже сделали в Шаге 2.1)
 
 ---
 
-## Управление контейнерами
-
-### Основные команды
+### 
 
 ```bash
-# Запустить
+# 
 docker-compose up -d
 
-# Остановить
+# 
 docker-compose down
 
-# Перезапустить
+# 
 docker-compose restart
 
-# Перезапустить один контейнер
+# 
 docker-compose restart worklog-tracker
 
-# Пересобрать и запустить
+#
 docker-compose up -d --build
 
-# Посмотреть статус
+# 
 docker-compose ps
 
-# Посмотреть логи
+# 
 docker-compose logs -f
 
-# Посмотреть использование ресурсов
+# 
 docker stats
 
-# Зайти внутрь контейнера
+# 
 docker exec -it worklog-tracker sh
 
-# Удалить всё и начать заново
+# Remove all and start again from begining 
 docker-compose down -v
 docker system prune -a
 ```
 
 ---
 
-## Управление данными
-
-### Бэкап базы данных
+### backup
 
 ```bash
-# На сервере
+# 
 cd /opt/dev-py/tempo_Go/my-tracker
 cp data/database.db data/database.db.backup-$(date +%Y%m%d)
 
-# Скопировать на локальную машину
+# backup if needs just in case you are not sure and true admin as usual do not do this never
 scp root@192.168.100.60:/opt/dev-py/tempo_Go/my-tracker/data/database.db ./backup-$(date +%Y%m%d).db
 ```
 
-### Восстановление базы
+### restore db
 
 ```bash
 # На сервере
@@ -529,105 +523,105 @@ docker-compose up -d
 
 ## Troubleshooting
 
-### Проблема: Порт 80 занят
+### port 80 busy
 
 ```bash
-# Проверяем кто слушает порт 80
+# check port 80 80
 ss -tlnp | grep :80
+lsof -i :80
 
-# Останавливаем Apache/другой веб-сервер
+# just f example
 systemctl stop apache2
 systemctl stop httpd
 systemctl disable apache2
 ```
 
-### Проблема: Контейнер не запускается
+### in case not running app
 
 ```bash
-# Смотрим логи
+# as you in book write be good to answer on interview 
 docker-compose logs worklog-tracker
 
-# Проверяем ошибки сборки
+# not bad take a look 
 docker-compose build --no-cache
 ```
 
-### Проблема: База данных пустая
+### 
 
 ```bash
-# Проверяем права
+# 
 ls -la data/database.db
 
-# Исправляем права
+# 
 chown 1000:1000 data/database.db
 chmod 664 data/database.db
 
-# Перезапускаем
+# 
 docker-compose restart worklog-tracker
 ```
 
-### Проблема: Не работает логин
+### login does not work
 
 ```bash
-# Заходим в контейнер
+# guk mal in container 
 docker exec -it worklog-tracker sh
 
-# Проверяем базу
+# check db 
 ls -la /app/data/
 
-# Проверяем переменные окружения
+# check env
 env | grep DATABASE
 
-# Выходим
+# leave without any message 
 exit
 ```
 
-### Проблема: Nginx не проксирует
+### issue: Nginx not do proxy
 
 ```bash
-# Проверяем логи Nginx
+# seems has to check logs this app  -  Nginx
 docker-compose logs nginx
 
-# Проверяем конфиг
+# config exam
 docker exec worklog-nginx nginx -t
 
-# Перезапускаем Nginx
+# here we go to restart - Nginx
 docker-compose restart nginx
 ```
 
 ---
 
-## Мониторинг
+## like monitoring aa..
 
-### Проверка здоровья
-
+### 
 ```bash
 # Health check
 curl http://localhost/health
 
-# Статус контейнеров
+# 
 docker-compose ps
 
-# Использование ресурсов
+# check used resources
 docker stats --no-stream
 ```
 
-### Просмотр логов
+### again and again logs 
 
 ```bash
-# Последние 100 строк
+# last 100 lines
 docker-compose logs --tail=100
 
-# Логи с временными метками
+# logs with time 
 docker-compose logs -f -t
 
-# Логи за последний час
+# guess what is it 
 docker-compose logs --since 1h
 
-# Логи только ошибок
+# Nur Fehlerprotokolle
 docker-compose logs | grep -i error
 ```
 
-### Логи Nginx
+### logs Nginx
 
 ```bash
 # Access log
@@ -639,101 +633,99 @@ docker exec worklog-nginx tail -f /var/log/nginx/error.log
 
 ---
 
-## Обновление приложения
+## how to upgrade do
 
-### Процесс обновления
+### so directly process 
 
-**На локальной машине:**
+**local machine Ubuntu :**
 ```bash
-# 1. Изменяем код
-# 2. Тестируем локально: go run .
-# 3. Копируем на сервер
+# 1. new code
+# 2. trying to run: go run .
+# 3. move to new server with docker 
 cd /opt/dev-py/tempo_Go
 rsync -av --exclude='data/' --exclude='*.db' my-tracker/ root@192.168.100.60:/opt/dev-py/tempo_Go/my-tracker/
 ```
 
-**На сервере:**
+**docker server:**
 ```bash
 cd /opt/dev-py/tempo_Go/my-tracker
 
-# Пересобираем и перезапускаем
+# let\s try to rebuild new one app 
 docker-compose down
 docker-compose build --no-cache
 docker-compose up -d
 
-# Проверяем логи
+# unglaublich / incredible 
 docker-compose logs -f
 ```
 
 ---
 
-## Firewall (опционально)
+## Firewall (depends)
 
-Если включён firewall на openSUSE:
+if ON firewall on openSUSE:
 
 ```bash
-# Открываем порты
+# just open ports
 sudo firewall-cmd --permanent --add-service=http
 sudo firewall-cmd --permanent --add-service=https
 sudo firewall-cmd --reload
 
-# Проверяем
+# check it 
 sudo firewall-cmd --list-all
 ```
 
 ---
 
-## Автозапуск при перезагрузке сервера
+## auto run this on server reboot etc 
 
-Docker Compose автоматически настроен на перезапуск (`restart: always`).
+Docker Compose - (`restart: always`).
 
-Проверка:
+check :
 ```bash
-# Перезагружаем сервер
+# init 6
 sudo reboot
 
-# После перезагрузки
+#after 
 docker-compose ps
 
-# Контейнеры должны быть в статусе "Up"
+# containers has to be "Up"
 ```
 
 ---
 
-## Чек-лист финальной проверки
+## check list
 
-- [ ] Контейнеры запущены: `docker-compose ps`
-- [ ] Логи без ошибок: `docker-compose logs`
-- [ ] Главная страница открывается: http://192.168.100.60
-- [ ] Логин работает
-- [ ] Создание записей работает
-- [ ] Графики отображаются
-- [ ] Экспорт в Excel работает
-- [ ] API возвращает JSON: `curl http://192.168.100.60/api/v1/auth/login`
-- [ ] База данных сохраняется: `ls -la data/database.db`
-- [ ] Автологаут через 30 минут работает
-- [ ] Кнопка "Выйти" работает
+- [ ] `docker-compose ps`
+- [ ] `docker-compose logs`
+- [ ]  http://192.168.100.60
+- [ ]  login 
+- [ ] new entry into db
+- [ ] charts
+- [ ] export Excel 
+- [ ] API return JSON: `curl http://192.168.100.60/api/v1/auth/login`
+- [ ] `ls -la data/database.db`
+- [ ] autologaout in 30 
+- [ ] logout
 
 ---
 
-## Итоговая конфигурация
+## so
 
-**Сервер:** openSUSE Leap 15.6  
+**server:** openSUSE Leap 15.6  
 **IP:** 192.168.100.60  
-**Порты:**
+**ports:**
 - 80 - Nginx (HTTP)
-- 8080 - Go приложение (localhost only)
+- 8080 - Go app (localhost only)
 
 **URL:**
 - Web: http://192.168.100.60
 - API: http://192.168.100.60/api/v1
 - Health: http://192.168.100.60/health
 
-**Данные:**
-- База: `/opt/dev-py/tempo_Go/my-tracker/data/database.db`
-- Логи: `docker-compose logs`
+**data:**
+- db: `/opt/dev-py/tempo_Go/my-tracker/data/database.db`
+- logs: `docker-compose logs`
 
 ---
 
-**Дата:** 2025-11-26  
-**Версия:** 1.0 (Production Ready)
