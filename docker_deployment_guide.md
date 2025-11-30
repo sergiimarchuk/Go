@@ -328,7 +328,7 @@ scp my-tracker/database.db root@192.168.100.60:/opt/dev-py/tempo_Go/my-tracker/d
 
 ---
 
-## Шаг 3:  Docker на openSUSE
+## 3:  Docker на openSUSE
 
 ### 3.1
 
