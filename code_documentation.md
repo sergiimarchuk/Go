@@ -63,10 +63,10 @@ my-tracker/
 
 ### 1. main.go
 
-**Функции:**
+**:**
 - `func main()` - initions application
 
-**Что делает:**
+**:**
 1. initions db
 2. Creation Gin engine
 3. (session cookie)

@@ -312,7 +312,7 @@ func InitDB() error {
 
 ---
 
-## Шаг 2: move to openSuse into docker  
+## 2: move to openSuse into docker  
 
 ### 2.1 this is on local machine (Ubuntu)
 
