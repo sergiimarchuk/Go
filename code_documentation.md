@@ -5,7 +5,7 @@
 3. [descript. Go files](#go-files)
 4. [decr. templ.](#templates)
 5. [db](#db)
-6. [API документация](#api)
+6. [API (#api)
 7. [security](#security)
 
 ---
